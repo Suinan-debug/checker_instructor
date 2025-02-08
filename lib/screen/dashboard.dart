@@ -2,19 +2,6 @@ import 'package:checker_instructor/screen/bottom_nav.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// void main() => runApp(AttendanceApp());
-
-// class AttendanceApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: 'Employee Attendance',
-//       theme: ThemeData(primarySwatch: Colors.blue),
-//       home: AttendanceScreen(),
-//     );
-//   }
-// }
-
 class AttendanceScreen extends StatefulWidget {
   const AttendanceScreen({super.key});
 
@@ -23,15 +10,35 @@ class AttendanceScreen extends StatefulWidget {
 }
 
 class _AttendanceScreenState extends State<AttendanceScreen> {
-  Map<String, List<Instructor>> wings = {
-    'East Wing': [
-      Instructor('Dr. Smith', Subject('Room 101', 'Math', '8:00 AM')),
-      Instructor('Prof. Johnson', Subject('Room 103', 'English', '10:00 AM')),
-    ],
-    'West Wing': [
-      Instructor('Dr. Lee', Subject('Room 201', 'History', '8:00 AM')),
-      Instructor('Dr. Reyes', Subject('Room 202', 'Chemistry', '9:00 AM')),
-    ],
+  Map<String, Map<String, List<Instructor>>> wings = {
+    'East Wing': {
+      'Monday': [
+        Instructor('Dr. Smith', Subject('Room 101', 'Math', '8:00 AM')),
+        Instructor('Prof. Johnson', Subject('Room 103', 'English', '10:00 AM')),
+      ],
+      'Tuesday': [
+        Instructor('Dr. Another', Subject('Room 102', 'Science', '9:00 AM')),
+      ],
+      'Wednesday': [], // Add schedules for other days
+      'Thursday': [],
+      'Friday': [],
+      'Saturday': [ Instructor('Dr. Lee', Subject('Room 201', 'History', '8:00 AM')),
+        Instructor('Dr. Reyes', Subject('Room 202', 'Chemistry', '9:00 AM')),],
+        'Sunday': [ Instructor('Dr. Lee', Subject('Room 201', 'History', '8:00 AM')),
+        ],
+    },
+    'West Wing': {
+      'Monday': [
+        Instructor('Dr. Lee', Subject('Room 201', 'History', '8:00 AM')),
+        Instructor('Dr. Reyes', Subject('Room 202', 'Chemistry', '9:00 AM')),
+      ],
+      'Tuesday': [], // Add schedules for other days
+      'Wednesday': [],
+      'Thursday': [],
+      'Friday': [],
+      'Saturday': [ Instructor('Dr. Lee', Subject('Room 201', 'History', '8:00 AM')),
+        Instructor('Dr. Reyes', Subject('Room 202', 'Chemistry', '9:00 AM')),],
+    },
   };
 
   Map<String, List<Subject>> archives = {
@@ -40,20 +47,29 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   };
 
   int _selectedIndex = 0;
+  String _selectedDay = DateFormat('EEEE').format(DateTime.now()); // Initially today
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Employee Attendance'),
+          title: const Text('Employee Attendance'),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'East Wing'),
-              Tab(text: 'West Wing'),
+              const Tab(text: 'East Wing'),
+              const Tab(text: 'West Wing'),
             ],
           ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () {
+                _showDayFilterDialog(context);
+              },
+            ),
+          ],
         ),
         body: TabBarView(
           children: [
@@ -78,8 +94,10 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
     );
   }
 
-  Widget _buildWingView(String wingName) {
-    List<Instructor> instructors = List.from(wings[wingName]!);
+   Widget _buildWingView(String wingName) {
+    String today = DateFormat('EEEE').format(DateTime.now()); // Get the current day
+    List<Instructor> instructors =
+        List.from(wings[wingName]![today] ?? []); // Get today's instructors
 
     return ListView.builder(
       itemCount: instructors.length,
@@ -101,14 +119,14 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
                       instructor.subject.attendanceTime = time;
                       if (newStatus != null) {
                         archives[wingName]!.add(instructor.subject);
-                        wings[wingName]!.remove(instructor);
+                        wings[wingName]![today]!.remove(instructor);
                         instructors.remove(instructor);
                       }
                     });
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.comment),
+                  icon: const Icon(Icons.comment),
                   onPressed: () {
                     _showRemarkModal(context, instructor);
                   },
@@ -120,6 +138,9 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
       },
     );
   }
+
+
+
 
   void _showRemarkModal(BuildContext context, Instructor instructor) {
     String remark = instructor.remark ?? '';
@@ -174,11 +195,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 }
 
+
 class AttendanceRow extends StatefulWidget {
   final Subject subject;
   final Function(String?, DateTime?) onAttendanceChanged;
 
-  const AttendanceRow({super.key, required this.subject, required this.onAttendanceChanged});
+  const AttendanceRow(
+      {super.key, required this.subject, required this.onAttendanceChanged});
 
   @override
   _AttendanceRowState createState() => _AttendanceRowState();
@@ -196,6 +219,11 @@ class _AttendanceRowState extends State<AttendanceRow> {
           onPressed: () {
             _showConfirmationDialog(context, 'Present');
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, // Set background color to green
+            foregroundColor:
+                Colors.white, // Text color to white for better contrast
+          ),
           child: Text('Present'),
         ),
         SizedBox(width: 8),
@@ -203,6 +231,11 @@ class _AttendanceRowState extends State<AttendanceRow> {
           onPressed: () {
             _showConfirmationDialog(context, 'Absent');
           },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red, // Set background color to red
+            foregroundColor:
+                Colors.white, // Text color to white for better contrast
+          ),
           child: Text('Absent'),
         ),
       ],
@@ -268,7 +301,10 @@ class ArchiveScreen extends StatefulWidget {
   final List<Subject> eastWingArchive;
   final List<Subject> westWingArchive;
 
-  const ArchiveScreen({super.key, required this.eastWingArchive, required this.westWingArchive});
+  const ArchiveScreen(
+      {super.key,
+      required this.eastWingArchive,
+      required this.westWingArchive});
 
   @override
   _ArchiveScreenState createState() => _ArchiveScreenState();
