@@ -4,7 +4,8 @@ class MyBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTabChanged;
 
-  const MyBottomNavigationBar({super.key, 
+  const MyBottomNavigationBar({
+    super.key,
     required this.selectedIndex,
     required this.onTabChanged,
   });
@@ -17,6 +18,10 @@ class MyBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Home',
         ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.add), // Icon for add instructor
+        //   label: 'Add Instructor',
+        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.archive),
           label: 'Archive',
