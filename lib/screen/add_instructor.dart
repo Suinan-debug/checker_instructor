@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../models/instructor.dart'; // Import the Instructor and Subject classes
 
 class AddInstructorScreen extends StatefulWidget {
-  final Function(Instructor) onInstructorAdded;
+  final Function(Instructor, String, String) onInstructorAdded;
 
   const AddInstructorScreen({super.key, required this.onInstructorAdded});
 
@@ -12,15 +13,20 @@ class AddInstructorScreen extends StatefulWidget {
 class _AddInstructorScreenState extends State<AddInstructorScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _roleController = TextEditingController();
+  final _roomNoController = TextEditingController();
   final _subjectController = TextEditingController();
   final _timeStartController = TextEditingController();
   final _timeEndController = TextEditingController();
+  String _selectedWing = 'East Wing';
+  String _selectedDay = 'Monday';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Instructor')),
+      appBar: AppBar(
+        title: const Text('Add Instructor'),
+        backgroundColor: Colors.blue,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -38,11 +44,11 @@ class _AddInstructorScreenState extends State<AddInstructorScreen> {
                 },
               ),
               TextFormField(
-                controller: _roleController,
-                decoration: const InputDecoration(labelText: 'Role'),
+                controller: _roomNoController,
+                decoration: const InputDecoration(labelText: 'Room No'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a role';
+                    return 'Please enter a room number';
                   }
                   return null;
                 },
@@ -77,22 +83,55 @@ class _AddInstructorScreenState extends State<AddInstructorScreen> {
                   return null;
                 },
               ),
+              DropdownButtonFormField<String>(
+                value: _selectedWing,
+                decoration: const InputDecoration(labelText: 'Wing'),
+                items: ['East Wing', 'West Wing'].map((String wing) {
+                  return DropdownMenuItem<String>(
+                    value: wing,
+                    child: Text(wing),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedWing = newValue!;
+                  });
+                },
+              ),
+              DropdownButtonFormField<String>(
+                value: _selectedDay,
+                decoration: const InputDecoration(labelText: 'Day'),
+                items: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((String day) {
+                  return DropdownMenuItem<String>(
+                    value: day,
+                    child: Text(day),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedDay = newValue!;
+                  });
+                },
+              ),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final instructor = Instructor(
                       _nameController.text,
-                      _roleController.text,
                       Subject(
+                        _roomNoController.text,
                         _subjectController.text,
                         _timeStartController.text,
-                        _timeEndController.text,
+                        endTime: _timeEndController.text,
                       ),
                     );
-                    widget.onInstructorAdded(instructor);
+                    widget.onInstructorAdded(instructor, _selectedWing, _selectedDay);
                     Navigator.pop(context);
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.blue,
+                ),
                 child: const Text('Add Instructor'),
               ),
             ],
@@ -105,33 +144,10 @@ class _AddInstructorScreenState extends State<AddInstructorScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    _roleController.dispose();
+    _roomNoController.dispose();
     _subjectController.dispose();
     _timeStartController.dispose();
     _timeEndController.dispose();
     super.dispose();
   }
-}
-
-// data_models.dart (or in the same file as AddInstructorScreen)
-class Instructor {
-  final String name;
-  final String role;
-  final Subject subject;
-  String? remark;
-
-  Instructor(this.name, this.role, this.subject, {this.remark});
-}
-
-class Subject {
-  final String subject;
-  final String timeStart;
-  final String timeEnd;
-  String? attendance;
-  DateTime? attendanceTime;
-  String? remark;
-  DateTime? lateTime;
-
-  Subject(this.subject, this.timeStart, this.timeEnd,
-      {this.attendance, this.attendanceTime, this.remark, this.lateTime});
 }

@@ -18,16 +18,19 @@ class MyBottomNavigationBar extends StatelessWidget {
           icon: Icon(Icons.home),
           label: 'Home',
         ),
-        // BottomNavigationBarItem(
-        //   icon: Icon(Icons.add), // Icon for add instructor
-        //   label: 'Add Instructor',
-        // ),
         BottomNavigationBarItem(
           icon: Icon(Icons.archive),
           label: 'Archive',
         ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.add),
+          label: 'Add Instructor',
+        ),
       ],
       currentIndex: selectedIndex,
+      selectedItemColor: Colors.yellow,
+      unselectedItemColor: Colors.white,
+      backgroundColor: Colors.blue,
       onTap: onTabChanged, // Call the callback function
     );
   }

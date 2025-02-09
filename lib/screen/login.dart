@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Employee Login'),
+        backgroundColor: Colors.blue,
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -32,6 +33,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Employee ID',
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    labelStyle: TextStyle(color: Colors.blue),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -47,6 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   decoration: InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.blue),
+                    ),
+                    labelStyle: TextStyle(color: Colors.blue),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -75,11 +84,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('Invalid Employee ID or Password'),
+                            backgroundColor: Colors.red,
                           ),
                         );
                       }
                     }
                   },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white, backgroundColor: Colors.blue,
+                  ),
                   child: Text('Login'),
                 ),
               ],
